@@ -11,12 +11,12 @@ def waveform_to_frames(waveform, frame_length, step):
     
     @returns:
     frames (np.ndarray((frame_length, num_frames))) - waveform chopped into frames
-    
-    num_frames should be at least int((len(speech)-frame_length)/step); it may be longer.
-    For every n and t such that 0 <= t*step+n <= N-1, it should be the case that 
-       frames[n,t] = waveform[t*step+n]
     '''
-    raise RuntimeError("You need to change this part")
+    num_frames = 1 + (len(waveform) - frame_length) // step
+    frames = np.zeros((frame_length, num_frames))
+    for t in range(num_frames):
+        frames[:, t] = waveform[t * step : t * step + frame_length]
+    return frames
 
 def frames_to_stft(frames):
     '''
@@ -28,7 +28,8 @@ def frames_to_stft(frames):
     @returns:
     stft (np.ndarray((frame_length,num_frames))) - the STFT (complex-valued)
     '''
-    raise RuntimeError("You need to change this part")
+    stft = np.fft.fft(frames, axis=0)
+    return stft
 
 def stft_to_spectrogram(stft):
     '''
@@ -41,11 +42,8 @@ def stft_to_spectrogram(stft):
     
     @returns:
     spectrogram (np.ndarray((frame_length,num_frames)) - spectrogram (real-valued)
-    
-    The spectrogram should be expressed in decibels (20*log10(abs(stft)).
-    np.amax(spectrogram) should be 0dB.
-    np.amin(spectrogram) should be no smaller than -60dB.
     '''
-    raise RuntimeError("You need to change this part")
-
-
+    spectrogram = 20 * np.log10(np.abs(stft))
+    spectrogram -= np.amax(spectrogram)
+    spectrogram = np.clip(spectrogram, -60, 0)
+    return spectrogram
